@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+  <title>VoteSentinel - Early Access</title>
+  <meta name="description" content="Get real-time alerts when your representatives vote. Know how they vote as it happens and send instant feedback." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body { margin: 0 !important; background: #020617 !important; }
+    .vs-root { min-height: 100vh; background: #020617; color: #e5e7eb; font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif; }
+    .vs-hero { position: relative; overflow: hidden; }
+    .vs-hero-overlay { position: absolute; inset: 0; background: radial-gradient(circle at top left, #0ea5e933, transparent 60%), radial-gradient(circle at bottom right, #6366f133, transparent 55%), #020617; }
+    .vs-hero-inner { position: relative; max-width: 1120px; margin: 0 auto; padding: 1.5rem 1.5rem 4rem; }
+    .vs-nav { display: flex; align-items: center; justify-content: space-between; padding: 0.25rem 0; }
+    .vs-logo-wrap { display: flex; align-items: center; gap: 0.5rem; }
+    .vs-logo { height: 4rem; width: auto; object-fit: contain; }
+    .vs-logo-text { font-weight: 600; letter-spacing: -0.02em; font-size: 1.15rem; }
+    .vs-hero-grid { display: grid; gap: 3rem; margin-top: 2.5rem; }
+    @media (min-width: 1024px) { .vs-hero-grid { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); align-items: center; } }
+    .vs-chip { display: inline-flex; align-items: center; border-radius: 999px; border: 1px solid #38bdf8; background: rgba(56, 189, 248, 0.12); padding: 0.35rem 0.9rem; font-size: 0.9rem; font-weight: 500; color: #bae6fd; margin-bottom: 0.75rem; }
+    .vs-hero-title { font-size: 2.5rem; line-height: 1.2; letter-spacing: -0.04em; font-weight: 600; }
+    @media (min-width: 640px) { .vs-hero-title { font-size: 3rem; } }
+    @media (min-width: 1024px) { .vs-hero-title { font-size: 3.5rem; } }
+    .vs-hero-highlight { color: #38bdf8; }
+    .vs-hero-sub { margin-top: 1rem; max-width: 36rem; font-size: 1.15rem; color: #ffffff; line-height: 1.6; }
+    .vs-bold { font-weight: 600; }
+    .vs-form-card { margin-top: 2rem; max-width: 32rem; background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(15, 23, 42, 0.98)); border-radius: 1.5rem; border: 3px solid #0ea5e9; padding: 1.5rem; box-shadow: 0 50px 120px rgba(14, 165, 233, 0.4), 0 0 80px rgba(14, 165, 233, 0.25); }
+    @media (min-width: 640px) { .vs-form-card { padding: 2rem; } }
+    .vs-form-title { font-size: 1.15rem; font-weight: 600; margin-bottom: 1rem; color: #ffffff; }
+    .vs-form-row { display: flex; flex-direction: column; gap: 0.75rem; }
+    @media (min-width: 640px) { .vs-form-row { flex-direction: row; } }
+    .vs-input { flex: 1; border-radius: 0.9rem; border: 1px solid #4b5563; background: #020617; color: #e5e7eb; padding: 0.75rem 1rem; font-size: 1rem; outline: none; }
+    .vs-input:focus { border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.4); }
+    .vs-input-zip { max-width: 9rem; }
+    .vs-btn-primary { border-radius: 0.9rem; background: #0ea5e9; color: #020617; font-size: 1.1rem; font-weight: 700; padding: 0.85rem 1.5rem; border: none; cursor: pointer; box-shadow: 0 15px 40px rgba(56, 189, 248, 0.5); transition: all 0.2s ease; }
+    .vs-btn-primary:hover { background: #38bdf8; transform: translateY(-2px); box-shadow: 0 20px 50px rgba(56, 189, 248, 0.6); }
+    .vs-btn-primary:disabled { opacity: 0.7; cursor: default; transform: none; }
+    .vs-btn-full { margin-top: 0.75rem; width: 100%; }
+    .vs-form-footnote { margin-top: 0.6rem; font-size: 0.85rem; color: #9ca3af; }
+    .vs-form-message { margin-top: 0.5rem; font-size: 0.95rem; }
+    .vs-form-message-success { color: #6ee7b7; }
+    .vs-form-message-error { color: #fb7185; }
+    .vs-hero-meta { margin-top: 1rem; font-size: 0.9rem; color: #9ca3af; }
+    .vs-phone-wrapper { position: relative; }
+    .vs-phone-glow { position: absolute; inset: -2rem; background: radial-gradient(circle at top, rgba(56, 189, 248, 0.35), transparent), radial-gradient(circle at bottom, rgba(129, 140, 248, 0.35), transparent); filter: blur(18px); opacity: 0.9; }
+    .vs-phone-stack { position: relative; display: flex; flex-direction: column; gap: 1.5rem; }
+    @media (min-width: 768px) { .vs-phone-stack { flex-direction: row; align-items: flex-start; } }
+    @media (min-width: 1024px) { .vs-phone-stack { flex-direction: column; } }
+    .vs-phone { width: 18rem; margin: 0 auto; border-radius: 2.5rem; border: 1px solid #4b5563; background: rgba(15, 23, 42, 0.95); padding: 0.9rem; box-shadow: 0 25px 60px rgba(15, 23, 42, 0.9); }
+    .vs-phone-lower { margin-top: 0.9rem; }
+    .vs-phone-notch { height: 1.1rem; width: 5rem; margin: 0 auto 0.9rem; border-radius: 999px; background: #374151; }
+    .vs-phone-body { border-radius: 1.6rem; background: rgba(15, 23, 42, 0.9); padding: 0.9rem 1rem 1.1rem; font-size: 0.9rem; }
+    .vs-phone-tag { font-size: 0.8rem; font-weight: 500; color: #7dd3fc; margin-bottom: 0.4rem; }
+    .vs-phone-title { font-size: 1rem; font-weight: 600; }
+    .vs-phone-text { margin-top: 0.35rem; color: #cbd5f5; font-size: 0.88rem; }
+    .vs-phone-actions { margin-top: 0.7rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .vs-pill { flex: 1; border-radius: 1rem; border: none; padding: 0.5rem 0; font-size: 0.88rem; font-weight: 600; cursor: default; }
+    .vs-pill-green { background: #34d399; color: #022c22; }
+    .vs-pill-red { background: #fb7185; color: #450a0a; }
+    .vs-phone-btn { width: 100%; border-radius: 0.75rem; border: none; padding: 0.6rem 1rem; font-size: 0.88rem; font-weight: 600; cursor: default; transition: all 0.2s; }
+    .vs-phone-btn-primary { background: #0ea5e9; color: #ffffff; }
+    .vs-phone-btn-secondary { background: rgba(14, 165, 233, 0.1); color: #38bdf8; border: 1px solid #0ea5e9; }
+    .vs-phone-title-sm { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.4rem; }
+    .vs-phone-score-row { display: flex; align-items: baseline; gap: 0.4rem; }
+    .vs-phone-score { font-size: 2.2rem; font-weight: 600; color: #38bdf8; }
+    .vs-phone-score-caption { font-size: 0.88rem; color: #e5e7eb; }
+    .vs-progress { margin-top: 0.45rem; height: 0.45rem; border-radius: 999px; background: #111827; overflow: hidden; }
+    .vs-progress-bar { width: 72%; height: 100%; border-radius: inherit; background: #4ade80; }
+    .vs-progress-meta { margin-top: 0.45rem; font-size: 0.85rem; color: #9ca3af; display: flex; justify-content: space-between; }
+    .vs-issue-card { margin-top: 0.7rem; border-radius: 1rem; background: rgba(15, 23, 42, 0.9); padding: 0.6rem 0.7rem; font-size: 0.88rem; }
+    .vs-issue-row { display: flex; justify-content: space-between; margin-bottom: 0.35rem; }
+    .vs-issue-row:last-child { margin-bottom: 0; }
+    .vs-issue-score { font-weight: 600; }
+    .vs-issue-score-good { color: #4ade80; }
+    .vs-issue-score-mid { color: #fbbf24; }
+    .vs-issue-score-low { color: #fb7185; }
+    .vs-section { padding: 4rem 1.5rem; }
+    .vs-section-light { background: #f9fafb; color: #020617; }
+    .vs-section-inner { max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: 3rem; }
+    .vs-two-col { display: grid; gap: 2rem; }
+    @media (min-width: 1024px) { .vs-two-col { grid-template-columns: 1.1fr 0.9fr; align-items: flex-start; } }
+    .vs-section-title { font-size: 2rem; font-weight: 600; letter-spacing: -0.03em; }
+    .vs-accent { color: #0284c7; }
+    .vs-section-text { margin-top: 0.8rem; font-size: 1.1rem; color: #4b5563; max-width: 38rem; line-height: 1.6; }
+    .vs-feature-pill-grid { display: grid; grid-template-columns: 1fr; gap: 1.2rem; }
+    @media (min-width: 640px) { .vs-feature-pill-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    .vs-pill-card { border-radius: 1.3rem; border: 1px solid #e5e7eb; background: #f3f4f6; padding: 1.3rem; }
+    .vs-pill-title { font-size: 1.05rem; font-weight: 600; }
+    .vs-pill-text { margin-top: 0.4rem; font-size: 0.95rem; color: #4b5563; line-height: 1.5; }
+    .vs-card-grid { display: grid; gap: 1.3rem; }
+    @media (min-width: 1024px) { .vs-card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    .vs-card { border-radius: 1.5rem; border: 1px solid #e5e7eb; background: white; padding: 1.5rem; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05); }
+    .vs-card-label { display: inline-flex; padding: 0.35rem 0.8rem; border-radius: 999px; background: #e0f2fe; color: #0369a1; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    .vs-card-title { margin-top: 0.7rem; font-size: 1.15rem; font-weight: 600; }
+    .vs-card-list { margin-top: 0.8rem; padding-left: 0; list-style: none; font-size: 0.95rem; line-height: 1.5; }
+    .vs-hero-sub .vs-card-list { color: #ffffff; }
+    .vs-section-light .vs-card-list { color: #4b5563; }
+    .vs-card-list-item { display: flex; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.85rem; }
+    .vs-card-list-item:last-child { margin-bottom: 0; }
+    .vs-dot { margin-top: 0.35rem; height: 0.5rem; width: 0.5rem; border-radius: 999px; background: #0ea5e9; }
+    .vs-nonpartisan-strip { border-radius: 1.6rem; background: #020617; color: #e5e7eb; padding: 2rem; display: flex; flex-direction: column; gap: 1.2rem; }
+    @media (min-width: 768px) { .vs-nonpartisan-strip { flex-direction: row; align-items: center; justify-content: space-between; } }
+    .vs-np-title { font-size: 1.2rem; font-weight: 600; }
+    .vs-np-text { margin-top: 0.4rem; font-size: 1rem; color: #9ca3af; max-width: 36rem; line-height: 1.6; }
+    .vs-np-tags { display: flex; flex-wrap: wrap; gap: 0.6rem; font-size: 0.9rem; }
+    .vs-np-tag { padding: 0.5rem 1.1rem; border-radius: 999px; background: #020617; border: 1px solid #111827; }
+    .vs-section-dark { background: #020617; color: #e5e7eb; }
+    .vs-final-inner { max-width: 820px; margin: 0 auto; text-align: center; }
+    .vs-final-title { font-size: 2.2rem; font-weight: 600; letter-spacing: -0.03em; }
+    .vs-final-text { margin-top: 1rem; font-size: 1.15rem; color: #9ca3af; line-height: 1.6; }
+    .vs-social-proof { margin-top: 1.5rem; font-size: 0.95rem; color: #6ee7b7; font-weight: 500; }
+    .vs-footer { margin-top: 1.5rem; font-size: 0.9rem; color: #6b7280; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="vs-root">
+    <!-- HERO -->
+    <section class="vs-hero">
+      <div class="vs-hero-overlay"></div>
+      <div class="vs-hero-inner">
+        <!-- Nav -->
+        <header class="vs-nav">
+          <div class="vs-logo-wrap">
+            <img src="assets/vote_sentinel_logo_header.png" alt="Vote Sentinel" class="vs-logo" />
+            <span class="vs-logo-text">Vote Sentinel</span>
+          </div>
+        </header>
+
+        <div class="vs-hero-grid">
+          <!-- Copy + form -->
+          <div class="vs-hero-copy">
+            <p class="vs-chip">
+              Real-time civic engagement • For voters 18–99
+            </p>
+            <h1 class="vs-hero-title">
+              Know how your representatives vote
+              <span class="vs-hero-highlight">— as it happens.</span>
+            </h1>
+            <div class="vs-hero-sub">
+              <ul class="vs-card-list">
+                <li class="vs-card-list-item">
+                  <span class="vs-dot"></span>
+                  <span>Instant alerts when your reps vote</span>
+                </li>
+                <li class="vs-card-list-item">
+                  <span class="vs-dot"></span>
+                  <span>Respond with one tap — Support or Oppose</span>
+                </li>
+                <li class="vs-card-list-item">
+                  <span class="vs-dot"></span>
+                  <span>Direct feedback to your reps' offices</span>
+                </li>
+                <li class="vs-card-list-item">
+                  <span class="vs-dot"></span>
+                  <span>Personalized alignment report card based on <span class="vs-bold">your</span> values</span>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Email form -->
+            <form class="vs-form-card" id="earlyAccessForm">
+              <p class="vs-form-title">Get early access to VoteSentinel</p>
+              <div class="vs-form-row">
+                <input
+                  type="email"
+                  required
+                  placeholder="Email address"
+                  id="emailInput"
+                  class="vs-input"
+                />
+                <input
+                  type="text"
+                  inputmode="numeric"
+                  placeholder="ZIP (optional)"
+                  id="zipInput"
+                  class="vs-input vs-input-zip"
+                />
+              </div>
+              <button
+                type="submit"
+                id="submitButton"
+                class="vs-btn-primary vs-btn-full"
+              >
+                Join the Early Access List
+              </button>
+              <p class="vs-form-footnote">
+                No spam, no political messaging. Just launch updates and a
+                chance to shape the platform.
+              </p>
+              <p id="formMessage" class="vs-form-message hidden"></p>
+              <p id="socialProof" class="vs-social-proof hidden"></p>
+            </form>
+
+            <div class="vs-hero-meta">
+              Neutral • Data-driven • Based on official vote records
+            </div>
+          </div>
+
+          <!-- Phone "graphics" -->
+          <div class="vs-phone-wrapper">
+            <div class="vs-phone-glow"></div>
+            <div class="vs-phone-stack">
+              <!-- Phone 1 – vote alert -->
+              <div class="vs-phone">
+                <div class="vs-phone-notch"></div>
+                <div class="vs-phone-body">
+                  <div class="vs-phone-tag">New vote just happened</div>
+                  <div class="vs-phone-title">
+                    House Vote 327 — Student Loan Relief Act
+                  </div>
+                  <p class="vs-phone-text">
+                    See how your representative voted and respond in one tap.
+                  </p>
+                  <div class="vs-phone-actions">
+                    <div style="display: flex; gap: 0.5rem">
+                      <button class="vs-pill vs-pill-green">Support</button>
+                      <button class="vs-pill vs-pill-red">Oppose</button>
+                    </div>
+                    <button class="vs-phone-btn vs-phone-btn-primary">View Bill Details</button>
+                    <button class="vs-phone-btn vs-phone-btn-secondary">Send Feedback to Rep</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Phone 2 – alignment card -->
+              <div class="vs-phone vs-phone-lower">
+                <div class="vs-phone-notch"></div>
+                <div class="vs-phone-body">
+                  <div class="vs-phone-title-sm">
+                    Your alignment with Rep. Smith
+                  </div>
+                  <div class="vs-phone-score-row">
+                    <span class="vs-phone-score">72%</span>
+                    <span class="vs-phone-score-caption">
+                      of votes match your stated values
+                    </span>
+                  </div>
+                  <div class="vs-progress">
+                    <div class="vs-progress-bar"></div>
+                  </div>
+                  <div class="vs-progress-meta">
+                    <span>In agreement: 28 votes</span>
+                    <span>In disagreement: 11</span>
+                  </div>
+                  <div class="vs-issue-card">
+                    <div class="vs-issue-row">
+                      <span>Climate &amp; energy</span>
+                      <span class="vs-issue-score vs-issue-score-good">84%</span>
+                    </div>
+                    <div class="vs-issue-row">
+                      <span>Education</span>
+                      <span class="vs-issue-score vs-issue-score-mid">62%</span>
+                    </div>
+                    <div class="vs-issue-row">
+                      <span>Civil liberties</span>
+                      <span class="vs-issue-score vs-issue-score-low">55%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="vs-section vs-section-light">
+      <div class="vs-section-inner">
+        <div class="vs-two-col">
+          <div>
+            <h2 class="vs-section-title">
+              Most people only learn what their reps did
+              <span class="vs-accent">after</span> decisions are made.
+            </h2>
+            <p class="vs-section-text">
+              Votes happen quietly. Bill summaries are confusing. And feedback
+              often feels like it disappears into a black box. VoteSentinel
+              gives you real-time visibility, a one-tap voice, and a
+              personalized lens on how closely your officials match your
+              values.
+            </p>
+          </div>
+          <div class="vs-feature-pill-grid">
+            <div class="vs-pill-card">
+              <h3 class="vs-pill-title">Real-time alerts</h3>
+              <p class="vs-pill-text">Get notified seconds after important votes happen in Congress.</p>
+            </div>
+            <div class="vs-pill-card">
+              <h3 class="vs-pill-title">One-tap feedback</h3>
+              <p class="vs-pill-text">Support, oppose, or comment on each vote in under 5 seconds.</p>
+            </div>
+            <div class="vs-pill-card">
+              <h3 class="vs-pill-title">Alignment report card</h3>
+              <p class="vs-pill-text">See how your reps line up with your beliefs over time.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="vs-card-grid">
+          <div class="vs-card">
+            <span class="vs-card-label">Transparency</span>
+            <h3 class="vs-card-title">Instant vote breakdowns</h3>
+            <ul class="vs-card-list">
+              <li class="vs-card-list-item">
+                <span class="vs-dot"></span>
+                <span>Plain-English summaries of each bill</span>
+              </li>
+              <li class="vs-card-list-item">
+                <span class="vs-dot"></span>
+                <span>How your reps voted on every measure</span>
+              </li>
+              <li class="vs-card-list-item">
+                <span class="vs-dot"></span>
+                <span>Official data, no partisan filters</span>
+              </li>
+            </ul>
+          </div>
+          <div class="vs-card">
+            <span class="vs-card-label">Two-way feedback</span>
+            <h3 class="vs-card-title">Your voice, delivered</h3>
+            <ul class="vs-card-list">
+              <li class="vs-card-list-item">
+                <span class="vs-dot"></span>
+                <span>Tap Support or Oppose on every vote</span>
+              </li>
+              <li class="vs-card-list-item">
+                <span class="vs-dot"></span>
+                <span>Your feedback is sent to Reps</span>
+              </li>
+              <li class="vs-card-list-item">
+                <span class="vs-dot"></span>
+                <span>Make your opinion count where it matters</span>
+              </li>
+            </ul>
+          </div>
+          <div class="vs-card">
+            <span class="vs-card-label">Personalization</span>
+            <h3 class="vs-card-title">Built around your values</h3>
+            <ul class="vs-card-list">
+              <li class="vs-card-list-item">
+                <span class="vs-dot"></span>
+                <span>Set your issue priorities</span>
+              </li>
+              <li class="vs-card-list-item">
+                <span class="vs-dot"></span>
+                <span>See per-issue alignment scores</span>
+              </li>
+              <li class="vs-card-list-item">
+                <span class="vs-dot"></span>
+                <span>Track trends over time</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="vs-nonpartisan-strip">
+          <div>
+            <h3 class="vs-np-title">
+              Civic accountability without the partisan noise.
+            </h3>
+            <p class="vs-np-text">
+              VoteSentinel doesn't push parties or ideology. It simply shows you
+              how your representatives vote and how that lines up with what you
+              care about.
+            </p>
+          </div>
+          <div class="vs-np-tags">
+            <span class="vs-np-tag">We don't promote parties.</span>
+            <span class="vs-np-tag">We don't push ideology.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FINAL CTA -->
+    <section class="vs-section vs-section-dark">
+      <div class="vs-final-inner">
+        <h2 class="vs-final-title">
+          Ready to hold your representatives accountable?
+        </h2>
+        <p class="vs-final-text">
+          Get launch updates and early access to personalized vote tracking.
+        </p>
+        <p id="socialProofBottom" class="vs-social-proof hidden"></p>
+        <button onclick="scrollToTop()" class="vs-btn-primary">
+          Join the Early Access List
+        </button>
+        <p class="vs-footer">
+          © <span id="currentYear"></span> VoteSentinel. Neutral, transparent, and
+          built for modern voters.
+        </p>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Set current year
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+    // API endpoint - change this to your DigitalOcean droplet URL
+    const API_BASE_URL = 'https://your-droplet-domain.com';
+
+    // State
+    let signupCount = null;
+
+    // Fetch signup count
+    async function fetchSignupCount() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/early-access/count`);
+        const data = await response.json();
+        signupCount = data.count;
+        updateSocialProof();
+      } catch (error) {
+        console.error('Failed to fetch signup count:', error);
+      }
+    }
+
+    // Update social proof displays
+    function updateSocialProof() {
+      if (signupCount !== null && signupCount >= 50) {
+        const text = `Join ${signupCount.toLocaleString()} ${signupCount === 1 ? 'person' : 'people'} on the early access list`;
+        const bottomText = `${signupCount.toLocaleString()} ${signupCount === 1 ? 'person has' : 'people have'} already joined`;
+        
+        const socialProof = document.getElementById('socialProof');
+        const socialProofBottom = document.getElementById('socialProofBottom');
+        
+        socialProof.textContent = text;
+        socialProof.classList.remove('hidden');
+        
+        socialProofBottom.textContent = bottomText;
+        socialProofBottom.classList.remove('hidden');
+      }
+    }
+
+    // Handle form submission
+    document.getElementById('earlyAccessForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const emailInput = document.getElementById('emailInput');
+      const zipInput = document.getElementById('zipInput');
+      const submitButton = document.getElementById('submitButton');
+      const formMessage = document.getElementById('formMessage');
+      
+      const email = emailInput.value.trim();
+      const zip = zipInput.value.trim() || null;
+      
+      if (!email) {
+        showMessage('Please enter your email.', 'error');
+        return;
+      }
+      
+      try {
+        submitButton.disabled = true;
+        submitButton.textContent = 'Joining...';
+        formMessage.classList.add('hidden');
+        
+        const response = await fetch(`${API_BASE_URL}/api/early-access`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, zip })
+        });
+        
+        if (!response.ok) throw new Error('Request failed');
+        
+        showMessage("You're in! We'll email you when VoteSentinel launches.", 'success');
+        emailInput.value = '';
+        zipInput.value = '';
+        
+        // Refetch count
+        await fetchSignupCount();
+        
+      } catch (error) {
+        console.error(error);
+        showMessage('Something went wrong. Please try again.', 'error');
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Join the Early Access List';
+      }
+    });
+
+    // Show message helper
+    function showMessage(text, type) {
+      const formMessage = document.getElementById('formMessage');
+      formMessage.textContent = text;
+      formMessage.className = 'vs-form-message';
+      
+      if (type === 'success') {
+        formMessage.classList.add('vs-form-message-success');
+      } else if (type === 'error') {
+        formMessage.classList.add('vs-form-message-error');
+      }
+      
+      formMessage.classList.remove('hidden');
+    }
+
+    // Scroll to top
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Initialize
+    fetchSignupCount();
+  </script>
+</body>
+</html>
